@@ -6,7 +6,7 @@ mod tui;
 use anyhow::Result;
 use crossterm::event::{self, KeyCode, KeyEvent};
 use files::list_files;
-use preview::get_file_preview;
+use preview::preview_me_daddy;
 use ratatui::widgets::{Clear, ListState};
 use tokio::runtime::Runtime;
 use std::{io, time::Duration};
@@ -24,7 +24,8 @@ fn main() -> Result<()> {
     loop {
         let (_display_name, file_name) = &file_list[selected_index];
         let rt = Runtime::new().unwrap();
-        let preview_text = rt.block_on(get_file_preview(file_name));
+        // let preview_text = rt.block_on(get_file_preview(file_name));
+        let preview_text = rt.block_on(preview_me_daddy(file_name));
         tui.terminal.draw(|f| {
             f.render_widget(Clear, f.area());
             draw::render_ui(

@@ -1,48 +1,59 @@
+use crate::files::{self, is_directory};
 use ansi_to_tui::IntoText;
 use ratatui::text::Text;
-use tokio::process::Command;
 use std::fs;
-use crate::files::is_directory;
+use tokio::process::Command;
 
-pub async fn get_file_preview(filename: &str) -> Text<'static> {
+pub fn preview_dir(filename: &str) -> String {
+    if let Ok(files) = files::list_files(filename) {
+
+
+    files
+        .iter()
+        .map(|(display_name, _file_name)| display_name.clone())
+        .collect::<Vec<_>>()
+        .join("\n")
+    } else  { 
+        return "ErrorRRR".to_string()
+    } 
+}
+pub async fn preview_file(filename: &str) -> Text<'static> {
+    let output = Command::new("bat")
+        .arg("--style=plain")
+        .arg("--paging=never")
+        .arg("--color=always")
+        .arg(filename)
+        .output()
+        .await;
+
+    match output {
+        Ok(output) if output.status.success() => {
+            // let raw_output = String::from_utf8_lossy(&output.stdout).to_string();
+            // raw_output.into_text().unwrap_or_else(|_| Text::raw("Failed to parse ANSI"))
+            let raw_output = String::from_utf8_lossy(&output.stdout); // Raw output with ANSI codes
+                        raw_output
+                .as_ref() // Convert Cow<str> into &str
+                .into_text()
+                .unwrap_or_else(|_| Text::raw("Failed to parse ANSI"))
+            // raw_output.into_text().unwrap_or_else(|_| Text::raw("Failed to parse ANSI"))
+        }
+        Ok(output) => {
+            let stderr = String::from_utf8_lossy(&output.stderr);
+            let status_code = output.status;
+            format!(
+                "Error: Failed to preview file\nExit Code: {:?}\nStderr: {}",
+                status_code, stderr
+            )
+            .into()
+        }
+        _ => Text::raw("Failed to execute bat: {}"),
+    }
+}
+
+pub async fn preview_me_daddy(filename: &str) -> String {
     if is_directory(filename) {
-        match fs::read_dir(filename) {
-            Ok(entries) => {
-                let mut result = String::from("📁 Directory contents:\n");
-                for entry in entries.flatten() {
-                    let name = entry
-                        .file_name()
-                        .into_string()
-                        .unwrap_or_else(|_| "Invalid UTF-8".into());
-                    result.push_str(&format!("- {}\n", name));
-                }
-                result.into()
-            }
-            Err(_) => "Failed to read directory contents".to_string().into()
-        }
+        preview_dir(filename)
     } else {
-        let output = Command::new("bat")
-            .arg("--style=plain")
-            .arg("--paging=never")
-            .arg("--color=always")
-            .arg(filename)
-            .output()
-            .await;
-
-        match output {
-            Ok(output) if output.status.success() => {
-                let raw_output = String::from_utf8_lossy(&output.stdout).to_string();
-                raw_output.into_text().unwrap_or_else(|_| Text::raw("Failed to parse ANSI"))
-            }
-            Ok(output) => {
-                let stderr = String::from_utf8_lossy(&output.stderr);
-                let status_code = output.status;
-                format!(
-                    "Error: Failed to preview file\nExit Code: {:?}\nStderr: {}",
-                    status_code, stderr
-                ).into()
-            }
-            _ => Text::raw("Failed to execute bat: {}"),
-        }
+        preview_file(filename).await.to_string()
     }
 }
