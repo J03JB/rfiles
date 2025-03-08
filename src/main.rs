@@ -8,6 +8,7 @@ use crossterm::event::{self, KeyCode, KeyEvent};
 use files::list_files;
 use preview::get_file_preview;
 use ratatui::widgets::{Clear, ListState};
+use tokio::runtime::Runtime;
 use std::{io, time::Duration};
 use tui::Tui;
 
@@ -21,7 +22,8 @@ fn main() -> Result<()> {
     list_state.select(Some(selected_index));
 
     loop {
-        let preview_text = get_file_preview(&file_list[selected_index]);
+        let rt = Runtime::new().unwrap();
+        let preview_text = rt.block_on(get_file_preview(&file_list[selected_index]));
         tui.terminal.draw(|f| {
             f.render_widget(Clear, f.area());
             draw::render_ui(

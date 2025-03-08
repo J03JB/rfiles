@@ -1,7 +1,10 @@
+use ansi_to_tui::IntoText;
+use ratatui::text::Text;
+use tokio::process::Command;
+use std::fs;
 use crate::files::is_directory;
-use std::{fs, process::Command};
 
-pub fn get_file_preview(filename: &str) -> String {
+pub async fn get_file_preview(filename: &str) -> Text<'static> {
     if is_directory(filename) {
         match fs::read_dir(filename) {
             Ok(entries) => {
@@ -13,21 +16,23 @@ pub fn get_file_preview(filename: &str) -> String {
                         .unwrap_or_else(|_| "Invalid UTF-8".into());
                     result.push_str(&format!("- {}\n", name));
                 }
-                result
+                result.into()
             }
-            Err(_) => "Failed to read directory contents".to_string(),
+            Err(_) => "Failed to read directory contents".to_string().into()
         }
     } else {
         let output = Command::new("bat")
-            .arg("--style=numbers,snip")
+            .arg("--style=plain")
+            .arg("--paging=never")
             .arg("--color=always")
-            .arg("--wrap=never")
             .arg(filename)
-            .output();
+            .output()
+            .await;
 
         match output {
             Ok(output) if output.status.success() => {
-                String::from_utf8_lossy(&output.stdout).to_string()
+                let raw_output = String::from_utf8_lossy(&output.stdout).to_string();
+                raw_output.into_text().unwrap_or_else(|_| Text::raw("Failed to parse ANSI"))
             }
             Ok(output) => {
                 let stderr = String::from_utf8_lossy(&output.stderr);
@@ -35,9 +40,9 @@ pub fn get_file_preview(filename: &str) -> String {
                 format!(
                     "Error: Failed to preview file\nExit Code: {:?}\nStderr: {}",
                     status_code, stderr
-                )
+                ).into()
             }
-            Err(e) => format!("Failed to execute bat: {}", e),
+            _ => Text::raw("Failed to execute bat: {}"),
         }
     }
 }

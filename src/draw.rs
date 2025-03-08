@@ -1,8 +1,5 @@
 use ratatui::{
-    layout::{Constraint, Direction, Layout},
-    style::{Color, Modifier, Style},
-    widgets::{Block, Borders, Clear, List, ListItem, ListState, Paragraph, Wrap},
-    Frame,
+    layout::{Constraint, Direction, Layout}, style::{Color, Modifier, Style}, text::Text, widgets::{Block, Borders, Clear, List, ListItem, ListState, Paragraph, Wrap}, Frame
 };
 
 pub fn render_ui(
@@ -10,7 +7,7 @@ pub fn render_ui(
     file_list: &[String],
     selected_index: usize,
     list_state: &mut ListState,
-    preview_text: &str,
+    preview_text: &Text<'static>,
 ) {
     let size = f.area();
     let layout = Layout::default()
@@ -37,7 +34,7 @@ pub fn render_ui(
     f.render_stateful_widget(list, layout[0], list_state);
 
 
-    let preview = Paragraph::new(preview_text)
+    let preview = Paragraph::new(preview_text.clone())
         .block(Block::default().borders(Borders::ALL).title("Preview"))
         .style(Style::default().fg(Color::White))
         .wrap(Wrap { trim: true });
