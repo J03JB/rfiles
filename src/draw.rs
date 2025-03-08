@@ -5,7 +5,7 @@ use crate::tui::Tui;
 
 pub fn render_ui(
     f: &mut Frame,
-    file_list: &[String],
+    file_list: &[(String,String)],
     selected_index: usize,
     list_state: &mut ListState,
     preview_text: &Text<'static>,
@@ -19,11 +19,11 @@ pub fn render_ui(
     let items: Vec<ListItem> = file_list
         .iter()
         .enumerate()
-        .map(|(i, file)| {
+        .map(|(i, (display_name, _file_name))| {
             let content = if i == selected_index {
-                format!(">  {}", file)
+                format!(">  {}", display_name)
             } else {
-                file.clone()
+                display_name.clone()
             };
             ListItem::new(content)
         })

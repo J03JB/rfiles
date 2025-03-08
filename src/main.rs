@@ -22,8 +22,9 @@ fn main() -> Result<()> {
     list_state.select(Some(selected_index));
 
     loop {
+        let (_display_name, file_name) = &file_list[selected_index];
         let rt = Runtime::new().unwrap();
-        let preview_text = rt.block_on(get_file_preview(&file_list[selected_index]));
+        let preview_text = rt.block_on(get_file_preview(file_name));
         tui.terminal.draw(|f| {
             f.render_widget(Clear, f.area());
             draw::render_ui(

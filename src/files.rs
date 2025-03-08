@@ -1,30 +1,34 @@
 use anyhow::Result;
-use devicons::FileIcon;
+use devicons::{FileIcon, icon_for_file};
 use std::{
     fs,
     path::{Path, PathBuf},
 };
 
-pub fn list_files(path: &str) -> Result<Vec<String>> {
-    let entries = fs::read_dir(PathBuf::from(path))?;
+pub fn list_files(path: &str) -> Result<Vec<(String, String)>> {
+    // let entries = fs::read_dir(PathBuf::from(path))?;
     let mut files = vec![];
 
-    for entry in entries {
-        let entry = entry?;
-        let file_name = entry
-            .file_name()
-            .into_string()
-            .unwrap_or_else(|_| "Invalid UTF-8".into());
+    if let Ok(entries) = fs::read_dir(path) {
+        for entry in entries.flatten() {
+            let path = entry.path();
+            // let entry = entry?;
+            let file_name = path.file_name().unwrap().to_string_lossy().to_string();
+            // .unwrap_or_else(|_| "Invalid UTF-8".into());
 
-        let icon = if is_directory(path) {
-            "📁".to_string() // Use a default folder icon
-        } else {
-            FileIcon::from(&path).to_string()
-        };
-        files.push(format!("{} {}", icon, file_name));
+            // let icon = icon_for_file(path,  &None);
+            let icon = icons(file_name.clone());
+
+            let display_name = format!("{} {}", icon, &file_name);
+            files.push((display_name, file_name.to_string()));
+        }
     }
 
     Ok(files)
+}
+
+pub fn icons(file_name: String) -> String {
+    FileIcon::from(&file_name).to_string()
 }
 
 pub fn is_directory(path: &str) -> bool {
