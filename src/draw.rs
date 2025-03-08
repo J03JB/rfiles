@@ -1,6 +1,7 @@
 use ratatui::{
     layout::{Constraint, Direction, Layout}, style::{Color, Modifier, Style}, text::Text, widgets::{Block, Borders, Clear, List, ListItem, ListState, Paragraph, Wrap}, Frame
 };
+use crate::tui::Tui;
 
 pub fn render_ui(
     f: &mut Frame,
@@ -19,12 +20,20 @@ pub fn render_ui(
         .iter()
         .enumerate()
         .map(|(i, file)| {
-            let mut item = ListItem::new(file.clone());
-            if i == selected_index {
-                item = item.style(Style::default().fg(Color::Yellow).add_modifier(Modifier::BOLD));
-            }
-            item
+            let content = if i == selected_index {
+                format!(">  {}", file)
+            } else {
+                file.clone()
+            };
+            ListItem::new(content)
         })
+        // .map(|(i, file)| {
+        //     let mut item = ListItem::new(file.clone());
+        //     if i == selected_index {
+        //         item = item.style(Style::default().fg(Color::Yellow).add_modifier(Modifier::BOLD));
+        //     }
+        //     item
+        // })
         .collect();
 
     let list = List::new(items)
