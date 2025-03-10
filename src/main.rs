@@ -2,10 +2,12 @@ mod draw;
 mod files;
 mod preview;
 mod tui;
+mod actions;
 
 use anyhow::Result;
-use crossterm::event::{self, KeyCode, KeyEvent};
+use crossterm::event::{self, Event, KeyCode, KeyEvent};
 use files::list_files;
+use crate::actions::open_file;
 use preview::preview_me_daddy;
 use ratatui::widgets::{Clear, ListState};
 use tokio::runtime::Runtime;
@@ -49,6 +51,9 @@ fn main() -> Result<()> {
                         if selected_index > 0 {
                             selected_index = selected_index.saturating_sub(1);
                         }
+                    }
+                    KeyCode::Enter => {
+                        open_file(file_name)?
                     }
                     _ => {}
                 }
