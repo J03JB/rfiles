@@ -1,22 +1,18 @@
-mod draw;
-mod files;
-mod preview;
-mod tui;
-mod actions;
-
 use anyhow::Result;
 use crossterm::event::{self, Event, KeyCode, KeyEvent};
-use files::list_files;
-use crate::actions::open_file;
-use preview::preview_me_daddy;
+use rfiles::actions::open_file;
+use rfiles::draw;
+use rfiles::files::list_files;
+use rfiles::preview::preview_me_daddy;
+use rfiles::tui::Tui;
+
 use ratatui::widgets::{Clear, ListState};
-use tokio::runtime::Runtime;
 use std::{io, time::Duration};
-use tui::Tui;
+use tokio::runtime::Runtime;
 
 fn main() -> Result<()> {
     let mut tui = Tui::new(io::stdout())?;
-    tui.enter()?; 
+    tui.enter()?;
 
     let file_list = list_files(".")?;
     let mut selected_index = 0;
@@ -26,7 +22,6 @@ fn main() -> Result<()> {
     loop {
         let (_display_name, file_name) = &file_list[selected_index];
         let rt = Runtime::new().unwrap();
-        // let preview_text = rt.block_on(get_file_preview(file_name));
         let preview_text = rt.block_on(preview_me_daddy(file_name));
         tui.terminal.draw(|f| {
             f.render_widget(Clear, f.area());
@@ -52,9 +47,7 @@ fn main() -> Result<()> {
                             selected_index = selected_index.saturating_sub(1);
                         }
                     }
-                    KeyCode::Enter => {
-                        open_file(file_name)?
-                    }
+                    KeyCode::Enter => open_file(file_name)?,
                     _ => {}
                 }
                 list_state.select(Some(selected_index));

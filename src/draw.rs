@@ -8,8 +8,8 @@ pub fn render_ui(
     file_list: &[(String,String)],
     selected_index: usize,
     list_state: &mut ListState,
-    // preview_text: &Text<'static>,
-    preview_text: &String,
+    preview_text: &Text<'static>,
+    // preview_text: &String,
 ) {
     let size = f.area();
     let layout = Layout::default()
