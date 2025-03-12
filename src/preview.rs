@@ -1,7 +1,6 @@
 use crate::files::{self, is_directory};
 use ansi_to_tui::IntoText;
 use ratatui::text::Text;
-use std::fs;
 use std::process::Stdio;
 use tokio::process::Command;
 

@@ -4,6 +4,8 @@ use std::io::Result;
 
 pub struct Action {
     pub open_file: fn(&str) -> Result<()>,
+    pub help: Help,
+    pub new_folder, 
 }
 
 pub fn open_file(file_path: &str) -> Result<()> {
