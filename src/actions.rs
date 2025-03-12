@@ -2,6 +2,10 @@ use std::process::Command;
 use std::io::Result;
 // use crate::Result;
 
+pub struct Action {
+    pub open_file: fn(&str) -> Result<()>,
+}
+
 pub fn open_file(file_path: &str) -> Result<()> {
     if cfg!(target_os = "macos") {
         // Use the `open` command on macOS
@@ -10,7 +14,7 @@ pub fn open_file(file_path: &str) -> Result<()> {
             .spawn()?;
     } else if cfg!(target_os = "linux") {
         // Use the `xdg-open` command on Linux
-        Command::new("xdg-open")
+        Command::new("$EDITOR")
             .arg(file_path)
             .spawn()?;
     } else {

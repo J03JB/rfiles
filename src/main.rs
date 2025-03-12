@@ -16,7 +16,7 @@ use tui::Tui;
 
 fn main() -> Result<()> {
     let mut tui = Tui::new(io::stdout())?;
-    tui.enter()?; // Initialize TUI
+    tui.enter()?; 
 
     let file_list = list_files(".")?;
     let mut selected_index = 0;

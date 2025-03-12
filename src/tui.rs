@@ -34,17 +34,11 @@ impl<W> Tui<W>
     }
 
     pub fn enter(&mut self) -> Result<()> {
-        println!("1");
         enable_raw_mode()?;
-        println!("2");
         let mut buff_stderr = LineWriter::new(stderr());
-        println!("3");
         execute!(buff_stderr, EnterAlternateScreen)?;
-        println!("4");
         self.terminal.clear()?;
-        println!("5");
         execute!(buff_stderr, DisableMouseCapture)?;
-        println!("6");
         Ok(())
     }
 
