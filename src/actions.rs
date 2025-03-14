@@ -22,3 +22,8 @@ pub fn open_file(file_path: &str) -> Result<()> {
 
     Ok(())
 }
+
+pub fn new_folder(dir_name: &str) -> Result<()> {
+    Command::new("mkdir").arg(dir_name).spawn()?;
+    Ok(())
+}

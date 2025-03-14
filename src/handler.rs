@@ -21,6 +21,6 @@ pub async fn handle_key_events(
         }
 
     }
-        return Ok(());
+        Ok(())
 }
 
