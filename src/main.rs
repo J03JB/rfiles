@@ -3,7 +3,7 @@ use crossterm::event::{self, Event, KeyCode, KeyEvent};
 use rfiles::ActivePanel;
 use rfiles::actions::{new_folder, open_file};
 use rfiles::draw;
-use rfiles::files::{cur_dir, list_files, up_dir};
+use rfiles::files::{cur_dir, list_files, parent_dir};
 use rfiles::preview::preview_me_daddy;
 use rfiles::tui::Tui;
 
@@ -16,7 +16,7 @@ fn main() -> Result<()> {
     tui.enter()?;
 
     let current_dir = cur_dir(".")?;
-    let parent_dir = up_dir(".");
+    let parent_dir = parent_dir(".");
     // let file_list = list_files(".")?;
     // let mut selected_index = 0;
     let mut active_panel = ActivePanel::Current;
@@ -33,6 +33,7 @@ fn main() -> Result<()> {
             ActivePanel::Parent => &parent_dir[selected_index_parent],
             ActivePanel::Current => &current_dir[selected_index_current],
         };
+        let current_path = ".";
         let rt = Runtime::new().unwrap();
         let preview_text = rt.block_on(preview_me_daddy(file_name));
         tui.terminal.draw(|f| {
@@ -47,6 +48,7 @@ fn main() -> Result<()> {
                 &mut parent_list_state,
                 &preview_text,
                 &active_panel,
+                current_path,
             );
         })?;
         if event::poll(Duration::from_millis(100))? {

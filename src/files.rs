@@ -42,12 +42,7 @@ pub fn cur_dir(path: &str) -> Result<Vec<(String, String)>> {
     list_files(path)
 }
 
-pub fn up_dir(path: &str) -> Vec<(String, String)> {
-// pub fn up_dir(path: &str) -> Result<Vec<(String, String)>, Box<dyn std::error::Error>> {
-    // let absolute_path = PathBuf::from(path).canonicalize().expect("erroe");
-    // let path_str = absolute_path.to_str().ok_or("erroroa")?;
-    // list_files(path_str).map_err(Into::into)
-    
+pub fn parent_dir(path: &str) -> Vec<(String, String)> {
     let mut files = Vec::new();
 
     // Convert path to an absolute path

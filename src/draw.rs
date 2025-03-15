@@ -1,3 +1,6 @@
+use crate::ActivePanel;
+use crate::files;
+// use crate::files::{cur_dir, list_files, parent_dir};
 use ratatui::{
     Frame,
     layout::{Constraint, Direction, Layout},
@@ -5,7 +8,6 @@ use ratatui::{
     text::Text,
     widgets::{Block, Borders, Clear, List, ListItem, ListState, Paragraph, Wrap},
 };
-use crate::ActivePanel;
 
 pub fn render_ui(
     f: &mut Frame,
@@ -17,6 +19,7 @@ pub fn render_ui(
     current_list_state: &mut ListState,
     preview_text: &Text<'static>,
     active_panel: &ActivePanel,
+    current_path: &str,
 ) {
     let size = f.area();
     let layout = Layout::default()
@@ -24,10 +27,27 @@ pub fn render_ui(
         // .constraints([Constraint::Percentage(30), Constraint::Min(70)])
         .constraints([
             Constraint::Percentage(15),
-            Constraint:: Percentage(45),
+            Constraint::Percentage(45),
             Constraint::Percentage(40),
         ])
         .split(size);
+
+    let grandparent_dir = if matches!(active_panel, ActivePanel::Parent) {
+        // Get parent of the parent directory
+        let parent_path = std::path::Path::new(current_path)
+            .parent()
+            .and_then(|p| p.to_str())
+            .unwrap_or(".");
+
+        files::parent_dir(parent_path)
+    } else {
+        Vec::new() // Empty when not needed
+    };
+
+    let grandparent_items: Vec<ListItem> = grandparent_dir
+        .iter()
+        .map(|(display_name, _file_name)| ListItem::new(display_name.clone()))
+        .collect();
 
     let up_dir: Vec<ListItem> = parent_dir
         .iter()
@@ -56,6 +76,9 @@ pub fn render_ui(
             ListItem::new(content)
         })
         .collect();
+    let grandparent_widget = List::new(grandparent_items)
+        .block(Block::default().title("/Grandparent/"))
+        .style(Style::default().fg(Color::White));
 
     //FIX: style selected item
     // item.style(Style::default().fg(Color::Yellow).add_modifier(Modifier::BOLD))
@@ -79,14 +102,31 @@ pub fn render_ui(
             }),
         );
 
-    f.render_stateful_widget(updir, layout[0], parent_list_state);
-    f.render_stateful_widget(list, layout[1], current_list_state);
+    // f.render_stateful_widget(updir, layout[0], parent_list_state);
+    // f.render_stateful_widget(list, layout[1], current_list_state);
 
     let preview = Paragraph::new(preview_text.clone())
         .block(Block::default())
         .style(Style::default().fg(Color::White))
         .wrap(Wrap { trim: true });
 
-    f.render_widget(Clear, layout[2]);
-    f.render_widget(preview, layout[2]);
+    let mut grandparent_list_state = ListState::default();
+    // f.render_widget(Clear, layout[2]);
+    // f.render_widget(preview, layout[2]);
+    match active_panel {
+        ActivePanel::Current => {
+            // When Current is active: Left=Parent, Middle=Current, Right=Preview
+            f.render_stateful_widget(updir, layout[0], parent_list_state);
+            f.render_stateful_widget(list, layout[1], current_list_state);
+            f.render_widget(Clear, layout[2]);
+            f.render_widget(preview, layout[2]);
+        }
+        ActivePanel::Parent => {
+            // When Parent is active: Left=Grandparent, Middle=Parent, Right=Preview
+            f.render_stateful_widget(grandparent_widget, layout[0], &mut grandparent_list_state);
+            f.render_stateful_widget(updir, layout[1], parent_list_state);
+            f.render_widget(Clear, layout[2]);
+            f.render_widget(preview, layout[2]);
+        }
+    }
 }
