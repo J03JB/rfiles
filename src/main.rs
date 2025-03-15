@@ -1,12 +1,11 @@
 use anyhow::Result;
 use crossterm::event::{self, Event, KeyCode, KeyEvent};
+use rfiles::ActivePanel;
 use rfiles::actions::{new_folder, open_file};
 use rfiles::draw;
 use rfiles::files::{cur_dir, list_files, up_dir};
 use rfiles::preview::preview_me_daddy;
 use rfiles::tui::Tui;
-use rfiles::ActivePanel;
-
 
 use ratatui::widgets::{Clear, ListState};
 use std::{io, time::Duration};
@@ -16,7 +15,7 @@ fn main() -> Result<()> {
     let mut tui = Tui::new(io::stdout())?;
     tui.enter()?;
 
-    let current_dir =  cur_dir(".")?;
+    let current_dir = cur_dir(".")?;
     let parent_dir = up_dir(".");
     // let file_list = list_files(".")?;
     // let mut selected_index = 0;
@@ -30,7 +29,7 @@ fn main() -> Result<()> {
     current_list_state.select(Some(selected_index_current));
     loop {
         // let (_display_name, file_name) = &current_dir[selected_index];
-       let (_display_name, file_name) = match active_panel {
+        let (_display_name, file_name) = match active_panel {
             ActivePanel::Parent => &parent_dir[selected_index_parent],
             ActivePanel::Current => &current_dir[selected_index_current],
         };
@@ -54,38 +53,34 @@ fn main() -> Result<()> {
             if let event::Event::Key(KeyEvent { code, .. }) = event::read()? {
                 match code {
                     KeyCode::Char('q') => break, // Exit on 'q'
-                    KeyCode::Down => {
-                        match active_panel {
-                            ActivePanel::Parent => {
-                                if selected_index_parent < parent_dir.len().saturating_sub(1) {
-                                    selected_index_parent += 1;
-                                }
-                                parent_list_state.select(Some(selected_index_parent));
+                    KeyCode::Down => match active_panel {
+                        ActivePanel::Parent => {
+                            if selected_index_parent < parent_dir.len().saturating_sub(1) {
+                                selected_index_parent += 1;
                             }
-                            ActivePanel::Current => {
-                                if selected_index_current < current_dir.len().saturating_sub(1) {
-                                    selected_index_current += 1;
-                                }
-                                current_list_state.select(Some(selected_index_current));
-                            }
+                            parent_list_state.select(Some(selected_index_parent));
                         }
-                    }
-                    KeyCode::Up => {
-                        match active_panel {
-                            ActivePanel::Parent => {
-                                if selected_index_parent > 0 {
-                                    selected_index_parent -= 1;
-                                }
-                                parent_list_state.select(Some(selected_index_parent));
+                        ActivePanel::Current => {
+                            if selected_index_current < current_dir.len().saturating_sub(1) {
+                                selected_index_current += 1;
                             }
-                            ActivePanel::Current => {
-                                if selected_index_current > 0 {
-                                    selected_index_current -= 1;
-                                }
-                                current_list_state.select(Some(selected_index_current));
-                            }
+                            current_list_state.select(Some(selected_index_current));
                         }
-                    }
+                    },
+                    KeyCode::Up => match active_panel {
+                        ActivePanel::Parent => {
+                            if selected_index_parent > 0 {
+                                selected_index_parent -= 1;
+                            }
+                            parent_list_state.select(Some(selected_index_parent));
+                        }
+                        ActivePanel::Current => {
+                            if selected_index_current > 0 {
+                                selected_index_current -= 1;
+                            }
+                            current_list_state.select(Some(selected_index_current));
+                        }
+                    },
                     KeyCode::Left => {
                         active_panel = ActivePanel::Parent;
                     }
@@ -93,7 +88,7 @@ fn main() -> Result<()> {
                     KeyCode::Right => {
                         active_panel = ActivePanel::Current;
                     }
-                     
+
                     // KeyCode::Down => {
                     //     if selected_index < file_list.len().saturating_sub(1) {
                     //         selected_index += 1;
