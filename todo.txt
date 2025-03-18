@@ -1,20 +1,23 @@
 [Files]
-- set up env for $EDITOR
-- picture preview
-- File Operations
-  - new
-  - delete
-  - rename
-  - copy/paste
-- open folder
-- close folder
+- [ ] set up env for $EDITOR
+- [ ] picture preview
+- [ ] File Operations
+  - [ ] new
+  - [ ] delete
+  - [ ] rename
+  - [ ] copy/paste
+- [ ] open folder
+- [ ] close folder
 [UI]
-- dynamic resizing
-- 3 columns
-- input prompt for commands
-- Highlights
-    - colors for icons
-    - selection color
+- [ ] dynamic resizing
+- [X] 3 columns
+- [ ] input prompt for commands
+- [ ] fix devicons folder in pane[0,2]
+- [ ] Highlights
+    - [ ] colors for icons
+    - [ ] selection color
 [General]
-- struct/function for Command::new()
-- help menu
+- [ ] struct/function for Command::new()
+- [ ] help menu
+
+config::Congig    default()

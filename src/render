@@ -1,0 +1,67 @@
+// Create a styled icon
+let icon_span = if is_directory {
+    Span::styled(icon, Style::default().fg(Color::Blue))
+} else {
+    // Color based on file type
+    let icon_color = get_icon_color(&entry.name);
+    Span::styled(icon, Style::default().fg(icon_color))
+};
+
+
+// Function to get icon color based on file extension
+fn get_icon_color(filename: &str) -> Color {
+    let lowercase = filename.to_lowercase();
+    
+    // Image files
+    if lowercase.ends_with(".jpg") || lowercase.ends_with(".jpeg") || 
+       lowercase.ends_with(".png") || lowercase.ends_with(".gif") || 
+       lowercase.ends_with(".bmp") || lowercase.ends_with(".svg") {
+        return Color::Magenta;
+    }
+    
+    // Code files
+    if lowercase.ends_with(".rs") || lowercase.ends_with(".go") || 
+       lowercase.ends_with(".py") || lowercase.ends_with(".js") || 
+       lowercase.ends_with(".ts") || lowercase.ends_with(".java") || 
+       lowercase.ends_with(".c") || lowercase.ends_with(".cpp") || 
+       lowercase.ends_with(".h") || lowercase.ends_with(".jsx") ||
+       lowercase.ends_with(".tsx") || lowercase.ends_with(".html") ||
+       lowercase.ends_with(".css") || lowercase.ends_with(".scss") ||
+       lowercase.ends_with(".toml") || lowercase.ends_with(".yaml") || 
+       lowercase.ends_with(".yml") || lowercase.ends_with(".json") {
+        return Color::Green;
+    }
+    
+    // Documents
+    if lowercase.ends_with(".pdf") || lowercase.ends_with(".doc") || 
+       lowercase.ends_with(".docx") || lowercase.ends_with(".txt") || 
+       lowercase.ends_with(".md") || lowercase.ends_with(".markdown") ||
+       lowercase.ends_with(".rtf") || lowercase.ends_with(".odt") {
+        return Color::Cyan;
+    }
+    
+    // Archives
+    if lowercase.ends_with(".zip") || lowercase.ends_with(".rar") || 
+       lowercase.ends_with(".tar") || lowercase.ends_with(".gz") || 
+       lowercase.ends_with(".7z") || lowercase.ends_with(".bz2") {
+        return Color::Yellow;
+    }
+    
+    // Executables
+    if lowercase.ends_with(".exe") || lowercase.ends_with(".app") || 
+       lowercase.ends_with(".msi") || lowercase.ends_with(".sh") || 
+       lowercase.ends_with(".bat") || lowercase.ends_with(".cmd") {
+        return Color::Red;
+    }
+    
+    // Media
+    if lowercase.ends_with(".mp3") || lowercase.ends_with(".wav") || 
+       lowercase.ends_with(".flac") || lowercase.ends_with(".ogg") || 
+       lowercase.ends_with(".mp4") || lowercase.ends_with(".avi") || 
+       lowercase.ends_with(".mkv") || lowercase.ends_with(".mov") {
+        return Color::LightMagenta;
+    }
+    
+    // Default for other files
+    Color::Gray
+}
