@@ -78,43 +78,43 @@ impl FileManager {
     }
 
     pub fn update_preview_pane(&mut self) {
-        // Get the current selected index
-        let current_index = *self
-            .state
-            .selected_indices
-            .get(&PaneState::Current)
-            .unwrap_or(&0);
+    // Get the current selected index
+    let current_index = *self
+        .state
+        .selected_indices
+        .get(&PaneState::Current)
+        .unwrap_or(&0);
 
-        // Clear previous preview content
-        self.panes[2].preview_content = None;
-        self.panes[2].contents.clear();
+    // Clear previous preview content
+    self.panes[2].preview_content = None;
+    self.panes[2].contents.clear();
 
-        // Get the selected item in the current pane, if any
-        if let Some(selected) = self.panes[1].contents.get(current_index) {
-            // Set preview pane path
-            self.panes[2].path = selected.path.clone();
+    // Get the selected item in the current pane, if any
+    if let Some(selected) = self.panes[1].contents.get(current_index) {
+        // Set preview pane path
+        self.panes[2].path = selected.path.clone();
 
-            // Load content or preview based on whether it's a file or directory
-            if selected.is_dir {
-                // For directories, just load their contents
-                let _ = self.panes[2].reload_contents();
-            } else {
-                // For files, create the runtime and load the preview
-                match tokio::runtime::Runtime::new() {
-                    Ok(rt) => {
-                        // Use block_on to wait for the async operation to complete
-                        let _ = rt.block_on(self.panes[2].reload_contents_or_preview());
+        // Load content or preview based on whether it's a file or directory
+        if selected.is_dir {
+            // For directories, just load their contents
+            let _ = self.panes[2].reload_contents();
+        } else {
+            // For files, create the runtime and load the preview
+            match tokio::runtime::Runtime::new() {
+                Ok(rt) => {
+                    // Use block_on to wait for the async operation to complete
+                    let _ = rt.block_on(self.panes[2].reload_contents_or_preview());
+               }
+                Err(e) => {
+                    // Log the error if runtime creation fails
+                    if let Ok(mut file) = std::fs::OpenOptions::new()
+                        .create(true)
+                        .append(true)
+                        .open("debug.log")
+                    {
+                        use std::io::Write;
+                        let _ = writeln!(file, "Failed to create runtime: {}", e);
                     }
-                    Err(e) => {
-                        // Log the error if runtime creation fails
-                        if let Ok(mut file) = std::fs::OpenOptions::new()
-                            .create(true)
-                            .append(true)
-                            .open("debug.log")
-                        {
-                            use std::io::Write;
-                            let _ = writeln!(file, "Failed to create runtime: {}", e);
-                        }
                     }
                 }
             }
@@ -216,6 +216,8 @@ impl FileManager {
                 // If not found, select the first item
                 self.state.selected_indices.insert(PaneState::Parent, 0);
             }
+        } else {
+            self.panes[0].contents.clear();
         }
         // Set the current directory to the parent
         let current_path = self.panes[1].path.clone();
