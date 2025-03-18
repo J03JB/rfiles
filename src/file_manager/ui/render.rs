@@ -105,7 +105,8 @@ pub fn render(file_manager: &FileManager, frame: &mut Frame) {
 
                     let icon: String = if is_directory {
                         // Folder icon
-                        "\u{f07b}".to_string()
+                        // "\u{f07b}".to_string()
+                        "".to_string()
                         // "".to_string()
                         // FileIcon::from(&entry.name).to_string()  // Default folder icon from Nerd Fonts
                     } else {

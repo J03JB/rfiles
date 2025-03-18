@@ -1,5 +1,6 @@
 mod file_manager;
 mod utils;
+use file_manager::ui::events::{InputEvent, EventHandler};
 use file_manager::FileManager;
 use file_manager::tui::Tui;
 use file_manager::ui::render;
@@ -17,7 +18,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     file_manager.init_paths()?;
 
     // Run the application
-    let result = run_app(&mut tui, &mut file_manager);
+    let event_handler = EventHandler::new(std::time::Duration::from_millis(100));
+    let result = run_app(&mut tui, &mut file_manager,  &event_handler);
 
     tui.exit()?;
 
@@ -27,140 +29,28 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 fn run_app(
     tui: &mut Tui<io::Stdout>,
     file_manager: &mut FileManager,
+    event_handler: &EventHandler,
 ) -> Result<(), Box<dyn std::error::Error>> {
-    use crossterm::event::{self, Event, KeyCode};
-    // use file_manager::ui::events::handle_key_event;
+    use file_manager::ui::events::handle_key_event;
 
     loop {
         tui.terminal.draw(|frame| {
-            // render::debug_pane_contents(&file_manager.panes);
             render::render(file_manager, frame);
         })?;
 
-        if let Event::Key(key) = event::read()? {
-            match key.code {
-                KeyCode::Char('q') => {
-                    // Quit the application
+                // Handle events
+        match event_handler.next()? {
+            InputEvent::Key(key) => {
+                // Check for quit key first
+                if let crossterm::event::KeyCode::Char('q') = key.code {
                     break;
                 }
-                KeyCode::Right | KeyCode::Enter => {
-                    // Handle navigation into directories
-                    match file_manager.state.active_pane {
-                        file_manager::PaneState::Parent => {
-                            file_manager
-                                .shift_directories_forward()
-                                .map_err(|e| anyhow::anyhow!(e))?;
-                        }
-                        file_manager::PaneState::Current => {
-                            // Get selected entry
-                            let current_index = *file_manager
-                                .state
-                                .selected_indices
-                                .get(&file_manager::PaneState::Current)
-                                .unwrap_or(&0);
-
-                            // If it's a directory, navigate into it
-                            if let Some(entry) = file_manager.panes[1].contents.get(current_index) {
-                                if entry.is_dir {
-                                    file_manager
-                                        .shift_directories_forward()
-                                        .map_err(|e| anyhow::anyhow!(e))?;
-                                }
-                            }
-                        }
-                        _ => {}
-                    }
-                }
-                KeyCode::Left => {
-                    // Handle navigation to parent directory
-                    match file_manager.state.active_pane {
-                        file_manager::PaneState::Current => {
-                            file_manager
-                                .shift_directories_backward()
-                                .map_err(|e| anyhow::anyhow!(e))?;
-                        }
-                        file_manager::PaneState::Preview => {
-                            file_manager
-                                .change_focus(file_manager::PaneState::Current)
-                                .map_err(|e| anyhow::anyhow!(e))?;
-                        }
-                        _ => {}
-                    }
-                }
-                KeyCode::Up => {
-                    // Move selection up
-                    let active_pane = file_manager.state.active_pane;
-                    let index = *file_manager
-                        .state
-                        .selected_indices
-                        .get(&active_pane)
-                        .unwrap_or(&0);
-
-                    if index > 0 {
-                        file_manager
-                            .state
-                            .selected_indices
-                            .insert(active_pane, index - 1);
-
-                        // Always update preview pane when in Current pane and selection changes
-                        if active_pane == file_manager::PaneState::Current {
-                            file_manager.update_preview_pane();
-                        }
-                    }
-                }
-                KeyCode::Down => {
-                    // Move selection down
-                    let active_pane = file_manager.state.active_pane;
-                    let index = *file_manager
-                        .state
-                        .selected_indices
-                        .get(&active_pane)
-                        .unwrap_or(&0);
-                    let pane_index = active_pane.to_index();
-
-                    if index + 1 < file_manager.panes[pane_index].contents.len() {
-                        file_manager
-                            .state
-                            .selected_indices
-                            .insert(active_pane, index + 1);
-
-                        // Always update preview pane when in Current pane and selection changes
-                        if active_pane == file_manager::PaneState::Current {
-                            file_manager.update_preview_pane();
-                        }
-                    }
-                }
-                // KeyCode::Up => {
-                //     // Move selection up
-                //     let active_pane = file_manager.state.active_pane;
-                //     let index = *file_manager.state.selected_indices.get(&active_pane).unwrap_or(&0);
-                //
-                //     if index > 0 {
-                //         file_manager.state.selected_indices.insert(active_pane, index - 1);
-                //         file_manager.update_preview_pane();
-                //     }
-                // }
-                // KeyCode::Down => {
-                //     // Move selection down
-                //     let active_pane = file_manager.state.active_pane;
-                //     let index = *file_manager.state.selected_indices.get(&active_pane).unwrap_or(&0);
-                //     let pane_index = active_pane.to_index();
-                //
-                //     if index + 1 < file_manager.panes[pane_index].contents.len() {
-                //         file_manager.state.selected_indices.insert(active_pane, index + 1);
-                //         file_manager.update_preview_pane();
-                //     }
-                // }
-                // KeyCode::Tab => {
-                //     handle_key_event(file_manager, key)
-                //         .map_err(|e| anyhow::anyhow!(e))?;
-                // }
-                // KeyCode::Left | KeyCode::Right | KeyCode::Up | KeyCode::Down | KeyCode::Enter => {
-                //     handle_key_event(file_manager, key)
-                //         .map_err(|e| anyhow::anyhow!(e))?;
-                // }
-                // Add more key handlers
-                _ => {}
+                
+                // Handle all other keys
+                handle_key_event(file_manager, key)?;
+            }
+            InputEvent::Tick => {
+                // Handle tick events if needed (for animations, etc.)
             }
         }
     }
