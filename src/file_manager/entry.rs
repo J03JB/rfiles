@@ -77,7 +77,18 @@ impl FileEntry {
                 .unwrap_or_default()
         }
     }
-    
+
+    pub fn icons() {
+        let is_directory =
+        self.is_dir || Path::new(&self.path).is_dir();
+
+        let icon = if is_directory {
+            icon_for_file(&entry.path, &Some(Theme::Dark)).to_string()
+        } else {
+            icon_for_file(&entry.name, &Some(Theme::Dark)).to_string()
+        };
+    }
+
     // Check if this is a special directory entry (. or ..)
     pub fn is_special_dir(&self) -> bool {
         self.is_dir && (self.name == "." || self.name == "..")
@@ -163,25 +174,12 @@ impl Ord for FileEntry {
 pub fn read_dir_entries(path: &Path) -> Result<Vec<FileEntry>, std::io::Error> {
     let mut entries = Vec::new();
     
-    // Add parent directory entry (..) if not at root
-    if let Some(parent) = path.parent() {
-        let parent_path = PathBuf::from(parent);
-        
-        entries.push(FileEntry {
-            name: String::from(".."),
-            path: parent_path,
-            is_dir: true,
-        });
-    }
-    
-    // Read directory entries
     for entry in fs::read_dir(path)? {
         let entry = entry?;
         let file_entry = FileEntry::from_path(entry.path())?;
         entries.push(file_entry);
     }
     
-    // Sort entries: directories first, then alphabetically
     entries.sort();
     
     Ok(entries)
