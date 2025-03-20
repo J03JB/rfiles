@@ -1,42 +1,13 @@
-use crate::file_manager::Pane;
 use crate::file_manager::{FileManager, PaneState};
-use devicons::{FileIcon, Theme, icon_for_file};
 use ratatui::{
     Frame,
     layout::{Constraint, Direction, Layout},
-    style::{Color, Style},
+    style::{Color, Style, Stylize},
     text::{Line, Span},
     widgets::{Block, Borders, Clear, List, ListItem, ListState, Paragraph, Wrap},
 };
-use std::path::Path;
 
-// pub fn debug_pane_contents(panes: &[Pane; 3]) {
-//     use std::fs::OpenOptions;
-//     use std::io::Write;
-//
-//     let mut file = OpenOptions::new()
-//         .create(true)
-//         .append(true)
-//         .open("paths_debug.log")
-//         .unwrap();
-//
-//     for (i, pane) in panes.iter().enumerate() {
-//         writeln!(file, "Pane {}: Path = {:?}", i, pane.path).unwrap();
-//
-//         for (j, entry) in pane.contents.iter().enumerate() {
-//             writeln!(file, "  Entry {}: name={}, path={:?}, is_dir={}",
-//                 j, entry.name, entry.path, entry.is_dir).unwrap();
-//
-//             // Also check the actual path
-//             let path_exists = Path::new(&entry.path).exists();
-//             let path_is_dir = Path::new(&entry.path).is_dir();
-//             writeln!(file, "    Path exists: {}, Is directory: {}", path_exists, path_is_dir).unwrap();
-//         }
-//         writeln!(file, "").unwrap();
-//     }
-// }
 pub fn render(file_manager: &FileManager, frame: &mut Frame) {
-    // Add this at the beginning of your render function or elsewhere for debugging
     let size = frame.area();
 
     let chunks = Layout::default()
@@ -52,15 +23,12 @@ pub fn render(file_manager: &FileManager, frame: &mut Frame) {
     for (i, pane) in file_manager.panes.iter().enumerate() {
         let is_active = i == file_manager.state.active_pane.to_index();
 
-        let border_style = if is_active {
-            Style::default().fg(Color::Yellow)
-        } else {
-            Style::default().fg(Color::White)
-        };
+        let border_style = Style::default().fg(Color::White);
+
         let title = pane.path.to_string_lossy().to_string();
         let block = Block::default()
-            .title(title)
-            .borders(Borders::ALL)
+            // .title(title)
+            .borders(Borders::NONE)
             .border_style(border_style);
 
         let selected_index = *file_manager
@@ -84,15 +52,16 @@ pub fn render(file_manager: &FileManager, frame: &mut Frame) {
                 .contents
                 .iter()
                 .map(|entry| {
-                    let is_directory =
-                        entry.is_dir || Path::new(&entry.path).is_dir();
-
-                    let icon = if is_directory {
-                        icon_for_file(&entry.path, &Some(Theme::Dark)).to_string()
-                    } else {
-                        icon_for_file(&entry.name, &Some(Theme::Dark)).to_string()
-                    };
-
+                    // let is_directory =
+                    //     entry.is_dir || Path::new(&entry.path).is_dir();
+                    //
+                    // let icon = if is_directory {
+                    //     icon_for_file(&entry.path, &Some(Theme::Dark)).to_string()
+                    // } else {
+                    //     icon_for_file(&entry.name, &Some(Theme::Dark)).to_string()
+                    // };
+                    // let icon = entry.icons();
+                    //
                     // Create a styled icon
                     // let icon_span = if entry.is_dir {
                     //     Span::styled(icon, Style::default())
@@ -100,12 +69,13 @@ pub fn render(file_manager: &FileManager, frame: &mut Frame) {
                     //     // You can customize colors based on file type if desired
                     //     Span::styled(icon, Style::default())
                     // };
-
+                    let icon = entry.get_icons();
+                    let icon_span = Span::styled(entry.get_icons(), Style::default());
                     // Create a line with the icon and file name
                     let line = Line::from(vec![
-                        Span::raw(icon),
+                        Span::raw(icon.to_string()),
                         Span::raw(" "),
-                        Span::raw(&entry.name),
+                        Span::raw(&entry.name).white(),
                     ]);
 
                     ListItem::new(line)

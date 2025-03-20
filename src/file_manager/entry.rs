@@ -1,7 +1,8 @@
+use devicons::{Theme, icon_for_file};
+use std::cmp::Ordering;
+use std::fs::{self, Metadata};
 use std::path::{Path, PathBuf};
 use std::time::{SystemTime, UNIX_EPOCH};
-use std::fs::{self, Metadata};
-use std::cmp::Ordering;
 
 #[derive(Debug, Clone)]
 pub struct FileEntry {
@@ -24,10 +25,11 @@ impl FileEntry {
     // Create a new FileEntry from a path
     pub fn from_path(path: PathBuf) -> Result<Self, std::io::Error> {
         // let metadata = fs::metadata(&path)?;
-        let filename = path.file_name()
+        let filename = path
+            .file_name()
             .map(|name| name.to_string_lossy().to_string())
             .unwrap_or_else(|| String::from(".."));
-            
+
         Ok(Self {
             name: filename,
             is_dir: path.is_dir(),
@@ -37,7 +39,7 @@ impl FileEntry {
             path,
         })
     }
-    
+
     // Format the file size for display
     // pub fn format_size(&self) -> String {
     //     if self.is_dir {
@@ -58,7 +60,7 @@ impl FileEntry {
     //         format!("{:.1}G", self.size as f64 / GB as f64)
     //     }
     // }
-    
+
     // Format the modification time for display
     // pub fn format_modified(&self) -> String {
     //     use chrono::{DateTime, Local};
@@ -66,52 +68,35 @@ impl FileEntry {
     //     let datetime: DateTime<Local> = self.modified.into();
     //     datetime.format("%Y-%m-%d %H:%M").to_string()
     // }
-    
+
     // Get file extension (returns empty string for directories)
     pub fn extension(&self) -> String {
         if self.is_dir {
             String::new()
         } else {
-            self.path.extension()
+            self.path
+                .extension()
                 .map(|ext| ext.to_string_lossy().to_string())
                 .unwrap_or_default()
         }
     }
 
-    pub fn icons() {
-        let is_directory =
-        self.is_dir || Path::new(&self.path).is_dir();
+    pub fn get_icons(&self) -> String {
+        let is_directory = self.is_dir || Path::new(&self.path).is_dir();
 
-        let icon = if is_directory {
-            icon_for_file(&entry.path, &Some(Theme::Dark)).to_string()
+        if is_directory {
+            icon_for_file(&self.path, &Some(Theme::Dark)).to_string()
         } else {
-            icon_for_file(&entry.name, &Some(Theme::Dark)).to_string()
-        };
+            let icon = icon_for_file(&self.name, &Some(Theme::Dark));
+            icon.to_string()
+        }
     }
 
     // Check if this is a special directory entry (. or ..)
     pub fn is_special_dir(&self) -> bool {
         self.is_dir && (self.name == "." || self.name == "..")
     }
-    
-    // Get a character icon based on file type
-    pub fn get_icon(&self) -> &'static str {
-        if self.is_dir {
-            "📁"
-        } else {
-            match self.extension().as_str() {
-                "rs" => "🦀",
-                "txt" | "md" => "📄",
-                "jpg" | "png" | "gif" => "🖼️",
-                "mp3" | "wav" | "flac" => "🎵",
-                "mp4" | "avi" | "mkv" => "🎬",
-                "pdf" => "📑",
-                "zip" | "tar" | "gz" => "📦",
-                "exe" | "app" => "⚙️",
-                _ => "📎",
-            }
-        }
-    }
+
 }
 
 impl PartialEq for FileEntry {
@@ -173,14 +158,14 @@ impl Ord for FileEntry {
 // Function to read directory contents and convert to FileEntries
 pub fn read_dir_entries(path: &Path) -> Result<Vec<FileEntry>, std::io::Error> {
     let mut entries = Vec::new();
-    
+
     for entry in fs::read_dir(path)? {
         let entry = entry?;
         let file_entry = FileEntry::from_path(entry.path())?;
         entries.push(file_entry);
     }
-    
+
     entries.sort();
-    
+
     Ok(entries)
 }
