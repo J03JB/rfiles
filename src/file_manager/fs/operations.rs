@@ -1,6 +1,32 @@
 use std::fs;
-use std::path::{Path, PathBuf};
 use std::io;
+use std::path::{Path, PathBuf};
+use std::process::Command;
+
+pub fn open_file(file_path: &str) -> io::Result<()> {
+    if cfg!(target_os = "macos") {
+        Command::new("nvim").arg(file_path).spawn()?;
+    } else if cfg!(target_os = "linux") {
+        Command::new("$EDITOR").arg(file_path).spawn()?;
+    } else {
+        return Err(std::io::Error::new(
+            std::io::ErrorKind::Other,
+            "Unsupported operating system",
+        ));
+    }
+
+    Ok(())
+}
+
+pub fn new_folder(dir_name: &str) -> io::Result<()> {
+    Command::new("mkdir").arg(dir_name).spawn()?;
+    Ok(())
+}
+
+pub fn new_file(path: &Path) -> io::Result<()> {
+    fs::File::create_new(path)?;
+    Ok(())
+}
 
 pub fn copy_file(source: &Path, destination: &Path) -> io::Result<()> {
     fs::copy(source, destination)?;

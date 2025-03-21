@@ -89,6 +89,10 @@ pub fn render(file_manager: &FileManager, frame: &mut Frame) {
             frame.render_stateful_widget(list, chunks[i], &mut state);
         }
     }
+
+    if file_manager.input_popup.active {
+        file_manager.input_popup.render(frame, size);
+    }
 }
 
 pub fn hex_to_tui_color(hex: &str) -> Color {

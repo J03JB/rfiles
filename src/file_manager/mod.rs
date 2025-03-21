@@ -10,11 +10,16 @@ pub mod ui;
 pub use entry::FileEntry;
 pub use pane::Pane;
 pub use state::{FileManagerState, PaneState};
+pub use ui::popup_input;
+
+use self::popup_input::InputPopup;
 
 // Main FileManager struct that ties everything together
 pub struct FileManager {
     pub panes: [Pane; 3],
     pub state: FileManagerState,
+    pub input_popup: InputPopup,
+
     // pub config: config::Config,
 }
 
@@ -22,14 +27,15 @@ impl FileManager {
     //  Quick creation without error checking
     pub fn new() -> Self {
         let state = FileManagerState::new();
-
         let panes = [Pane::new(), Pane::new(), Pane::new()];
+        let input_popup = InputPopup::new();
 
         // let config = config::Config::default();
 
         Self {
             panes,
             state,
+            input_popup,
             // config,
         }
     }
