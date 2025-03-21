@@ -8,17 +8,23 @@
   - [ ] copy/paste
 - [ ] open folder
 - [ ] close folder
+
 [UI]
 - [ ] dynamic resizing
 - [X] 3 columns
 - [ ] input prompt for commands
 - [ ] fix devicons folder in pane[0,2]
+- [ ] devicons, for hidden dirs/files
 - [ ] Highlights
     - [ ] colors for icons
     - [ ] selection color
+
 [General]
 - [ ] struct/function for Command::new()
 - [ ] help menu
+
+[Events]
 - [ ] events, up and down into a function
+- [ ] don't crash when trying left on root dir
 
 config::Congig    default()
