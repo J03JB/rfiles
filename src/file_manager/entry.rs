@@ -1,8 +1,11 @@
-use devicons::{Theme, icon_for_file};
+use devicons::FileIcon;
+use ratatui::style::Color;
 use std::cmp::Ordering;
 use std::fs::{self, Metadata};
 use std::path::{Path, PathBuf};
 use std::time::{SystemTime, UNIX_EPOCH};
+
+use crate::utils::hex_to_tui_color;
 
 #[derive(Debug, Clone)]
 pub struct FileEntry {
@@ -69,7 +72,6 @@ impl FileEntry {
     //     datetime.format("%Y-%m-%d %H:%M").to_string()
     // }
 
-    // Get file extension (returns empty string for directories)
     pub fn extension(&self) -> String {
         if self.is_dir {
             String::new()
@@ -81,22 +83,20 @@ impl FileEntry {
         }
     }
 
-    pub fn get_icons(&self) -> String {
+    pub fn get_icons(&self) -> (String, Color) {
         let is_directory = self.is_dir || Path::new(&self.path).is_dir();
 
         if is_directory {
-            icon_for_file(&self.path, &Some(Theme::Dark)).to_string()
+            (FileIcon::from(&self.name).to_string(), Color::Blue)
         } else {
-            let icon = icon_for_file(&self.name, &Some(Theme::Dark));
-            icon.to_string()
+            let icon = FileIcon::from(&self.name);
+            let hex_color = icon.color;
+
+            let color = hex_to_tui_color(hex_color);
+
+            (icon.to_string(), color)
         }
     }
-
-    // Check if this is a special directory entry (. or ..)
-    pub fn is_special_dir(&self) -> bool {
-        self.is_dir && (self.name == "." || self.name == "..")
-    }
-
 }
 
 impl PartialEq for FileEntry {
@@ -115,7 +115,6 @@ impl PartialOrd for FileEntry {
 
 impl Ord for FileEntry {
     fn cmp(&self, other: &Self) -> Ordering {
-        // Directories come before files
         match (self.is_dir, other.is_dir) {
             (true, false) => Ordering::Less,
             (false, true) => Ordering::Greater,

@@ -6,8 +6,6 @@
   - [ ] delete
   - [ ] rename
   - [ ] copy/paste
-- [ ] open folder
-- [ ] close folder
 
 [UI]
 - [ ] dynamic resizing
@@ -15,6 +13,8 @@
 - [ ] input prompt for commands
 - [ ] fix devicons folder in pane[0,2]
 - [ ] devicons, for hidden dirs/files
+- [ ] custom folder icon
+- [ ] Highlights for file and folder selection
 - [ ] Highlights
     - [ ] colors for icons
     - [ ] selection color

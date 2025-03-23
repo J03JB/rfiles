@@ -1,13 +1,11 @@
 use crate::file_manager::{FileManager, PaneState};
-use devicons::FileIcon;
 use ratatui::{
     Frame,
     layout::{Constraint, Direction, Layout},
-    style::{Color, Style},
+    style::{Color, Modifier, Style},
     text::{Line, Span},
     widgets::{Block, Borders, Clear, List, ListItem, ListState, Paragraph, Wrap},
 };
-use std::path::Path;
 
 pub fn render(file_manager: &FileManager, frame: &mut Frame) {
     let size = frame.area();
@@ -21,7 +19,6 @@ pub fn render(file_manager: &FileManager, frame: &mut Frame) {
         ])
         .split(size);
 
-    // Render each pane
     for (i, pane) in file_manager.panes.iter().enumerate() {
         let _is_active = i == file_manager.state.active_pane.to_index();
 
@@ -52,24 +49,11 @@ pub fn render(file_manager: &FileManager, frame: &mut Frame) {
                 .contents
                 .iter()
                 .map(|entry| {
-                    let is_directory = entry.is_dir || Path::new(&entry.path).is_dir();
-
-                    let (icon, color) = if is_directory {
-                        (FileIcon::from(&entry.path).to_string(), Color::Blue)
-                    } else {
-                        let icon = FileIcon::from(&entry.name);
-                        let hex_color = icon.color;
-
-                        let color = hex_to_tui_color(hex_color);
-
-                        (icon.to_string(), color)
-                    };
-                    // let icon = entry.icons();
+                    let (icon, color) = entry.get_icons();
                     let icon_span = Span::styled(icon, Style::default().fg(color));
 
                     let line = Line::from(vec![
                         icon_span,
-                        // Span::raw(icon.to_string()),
                         Span::raw(" "),
                         Span::raw(&entry.name),
                     ]);
@@ -80,7 +64,11 @@ pub fn render(file_manager: &FileManager, frame: &mut Frame) {
 
             let list = List::new(items)
                 .block(block)
-                .highlight_style(Style::default().bg(Color::Blue))
+                .highlight_style(
+                    Style::default()
+                        .fg(Color::Blue)
+                        .add_modifier(Modifier::BOLD),
+                )
                 .highlight_symbol("> ");
 
             let mut state = ListState::default();
