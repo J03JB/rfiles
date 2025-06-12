@@ -130,7 +130,7 @@ impl InputPopup {
             return;
         }
 
-        let popup_area = centered_rect(40, 5, area);
+        let popup_area = centered_rect(50, 7, area);
 
         frame.render_widget(Clear, popup_area);
 
