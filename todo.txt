@@ -27,4 +27,28 @@
 - [ ] events, up and down into a function
 - [ ] don't crash when trying left on root dir
 
+[Features]
+- [ ] search
+- [ ] find
+- [ ] sort
+- [ ] Git integration
+  - [ ] branch switching
+  - [ ] staging
+  - [ ] commit
+  - [ ] quick diff/blame
+- [ ] async file operations
+  - [ ] pause/resume
+  - [ ] display progress
+- [ ] system clipboard integration
+- [ ] Bulk operations
+  - [ ] batch rename
+  - [ ] bulk copy/move
+- [ ] file permissions/ownership
+- [ ] trash/recycle bin
+- [ ] smart bookmarks/favorites/tags
+  - [ ] 'jumping' features, based on usage patterns (zoxide)
+- [ ] Archive browsing
+- [ ] remote mounts
+- [ ] Disk usage analysis/visualization (like ncdu)
+
 config::Congig    default()
