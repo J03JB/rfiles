@@ -22,7 +22,7 @@
 [General]
 - [ ] struct/function for Command::new()
 - [ ] help menu
-- [ ] dir selection isnt kept when moving forward
+- [X] dir selection isnt kept when moving forward
 
 [Events]
 - [ ] events, up and down into a function
