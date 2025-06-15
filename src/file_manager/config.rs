@@ -1,9 +1,9 @@
 pub struct Config {
 }
 
-impl Config {
-
-    pub fn default() {
+impl Default for Config {
+    fn default() -> Self {
         println!("HeLlO");
+        Config {}
     }
 }
