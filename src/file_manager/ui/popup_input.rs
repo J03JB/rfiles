@@ -53,7 +53,7 @@ impl InputPopup {
                 self.prompt = "Rename:".to_string();
             }
             PopupMode::Delete => {
-                self.prompt = "Are you sure? (y/n)".to_string();
+                self.prompt = "Delete (y/n):".to_string();
             }
             PopupMode::Copy => {
                 self.prompt = "Copy to:".to_string();

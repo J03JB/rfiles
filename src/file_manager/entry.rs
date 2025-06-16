@@ -1,9 +1,8 @@
 use devicons::FileIcon;
 use ratatui::style::Color;
 use std::cmp::Ordering;
-use std::fs::{self, Metadata};
+use std::fs::{self};
 use std::path::{Path, PathBuf};
-use std::time::{SystemTime, UNIX_EPOCH};
 
 use crate::utils::hex_to_tui_color;
 
@@ -12,6 +11,7 @@ pub struct FileEntry {
     pub name: String,
     pub path: PathBuf,
     pub is_dir: bool,
+    pub is_file: bool,
     // pub size: u64,
     // pub modified: SystemTime,
     // pub permissions: Permissions,
@@ -36,6 +36,7 @@ impl FileEntry {
         Ok(Self {
             name: filename,
             is_dir: path.is_dir(),
+            is_file: !path.is_dir(),
             // size: if metadata.is_dir() { 0 } else { metadata.len() },
             // modified: metadata.modified().unwrap_or(UNIX_EPOCH),
             // permissions: Permissions::from_metadata(&metadata),

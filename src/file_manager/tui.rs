@@ -29,7 +29,7 @@ impl<W> Tui<W>
         })
     }
 
-    pub fn size(&self) -> Result<Size> {
+    pub fn _size(&self) -> Result<Size> {
         Ok(self.terminal.size()?)
     }
 

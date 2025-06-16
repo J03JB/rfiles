@@ -3,11 +3,12 @@ use std::io;
 use std::path::{Path, PathBuf};
 use std::process::Command;
 
-pub fn open_file(file_path: &str) -> io::Result<()> {
+pub fn open_file(file_path: &Path) -> io::Result<()> {
     if cfg!(target_os = "macos") {
         Command::new("nvim").arg(file_path).spawn()?;
     } else if cfg!(target_os = "linux") {
-        Command::new("$EDITOR").arg(file_path).spawn()?;
+        Command::new("xdg-open").arg(file_path).spawn()?;
+        // Command::new("nvim").arg(file_path).spawn()?;
     } else {
         return Err(std::io::Error::new(
             std::io::ErrorKind::Other,
@@ -18,8 +19,10 @@ pub fn open_file(file_path: &str) -> io::Result<()> {
     Ok(())
 }
 
-pub fn new_folder(dir_name: &str) -> io::Result<()> {
-    Command::new("mkdir").arg(dir_name).spawn()?;
+pub fn new_folder(dir_name: &Path) -> io::Result<()> {
+    Command::new("mkdir")
+        .arg("-i")
+        .arg(dir_name).spawn()?;
     Ok(())
 }
 
