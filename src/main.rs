@@ -11,7 +11,6 @@ fn main() -> Result<()> {
     tui.enter()?;
 
     let mut file_manager = FileManager::new();
-    // file_manager.init_paths().map_err(|e| anyhow::anyhow!(e))?;
     file_manager.init_paths()?;
 
     let result = run_app(&mut tui, &mut file_manager);
