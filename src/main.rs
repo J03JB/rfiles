@@ -1,12 +1,14 @@
 mod file_manager;
 mod utils;
+use anyhow::Result;
+use cli_log::*;
 use file_manager::FileManager;
 use file_manager::tui::Tui;
 use file_manager::ui::render;
 use std::io;
-use anyhow::Result;
 
 fn main() -> Result<()> {
+    init_cli_log!();
     let mut tui = Tui::new(io::stdout())?;
     tui.enter()?;
 
@@ -46,4 +48,3 @@ fn run_app(
 
     Ok(())
 }
-

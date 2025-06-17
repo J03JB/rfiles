@@ -11,7 +11,7 @@ use crossterm::{
     },
 };
 use ratatui::{backend::CrosstermBackend, layout::Size};
-use tracing::debug;
+use cli_log::*;
 
 pub struct Tui<W>
     where 
