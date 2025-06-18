@@ -4,6 +4,7 @@ use crate::file_manager::{FileManager, PaneState};
 use crossterm::event::{KeyCode, KeyEvent};
 use std::path::{Path, PathBuf};
 use anyhow::Result;
+use crate::file_manager::tui::Tui;
 
 fn process_popup_result(file_manager: &mut FileManager, input: String) -> Result<()> {
     match file_manager.input_popup.mode {
@@ -90,7 +91,8 @@ fn process_popup_result(file_manager: &mut FileManager, input: String) -> Result
     Ok(())
 }
 
-pub fn handle_key_event(file_manager: &mut FileManager, key: KeyEvent) -> Result<(), anyhow::Error> {
+pub fn handle_key_event<W>(tui: &mut Tui<W>, file_manager: &mut FileManager, key: KeyEvent) -> Result<(), anyhow::Error>
+where W: std::io::Write {
     if file_manager.input_popup.active {
         if let Some(input) = file_manager.input_popup.handle_input(key) {
             process_popup_result(file_manager, input)?;
@@ -115,7 +117,7 @@ pub fn handle_key_event(file_manager: &mut FileManager, key: KeyEvent) -> Result
                         if entry.is_dir {
                             file_manager.shift_directories_forward()?;
                         } else if entry.is_file {
-                            let _ = operations::open_file(&entry.path);
+                            let _ = operations::open_file(tui,&entry.path);
                         }
                     }
                 }
@@ -156,7 +158,7 @@ pub fn handle_key_event(file_manager: &mut FileManager, key: KeyEvent) -> Result
         //     let _  = file_manager.change_focus(new_focus);
         //     Ok(())
         // }
-        KeyCode::Right => {
+        KeyCode::Right | KeyCode::Char('l') => {
             match file_manager.state.active_pane {
                 PaneState::Parent => {
                     file_manager.shift_directories_forward()?;

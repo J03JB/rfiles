@@ -40,7 +40,7 @@ fn run_app(
                     break;
                 }
                 _ => {
-                    handle_key_event(file_manager, key).map_err(|e| anyhow::anyhow!(e))?;
+                    handle_key_event(tui, file_manager, key).map_err(|e| anyhow::anyhow!(e))?;
                 }
             }
         }

@@ -1,28 +1,35 @@
+use anyhow::Result;
 use std::fs;
 use std::io;
-use std::path::{Path, PathBuf};
+use std::path::Path;
 use std::process::Command;
 
-pub fn open_file(file_path: &Path) -> io::Result<()> {
-    if cfg!(target_os = "macos") {
-        Command::new("nvim").arg(file_path).spawn()?;
+use crate::file_manager::tui::Tui;
+
+pub fn open_file<W>(tui: &mut Tui<W>, file_path: &Path) -> Result<()>
+where
+    W: io::Write,
+{
+    tui.suspend()?;
+
+    let result = if cfg!(target_os = "macos") {
+        Command::new("nvim").arg(file_path).spawn()
     } else if cfg!(target_os = "linux") {
-        Command::new("xdg-open").arg(file_path).spawn()?;
-        // Command::new("nvim").arg(file_path).spawn()?;
+        Command::new("xdg-open").arg(file_path).spawn()
+        // Command::new("nvim").arg(file_path).spawn()
     } else {
-        return Err(std::io::Error::new(
-            std::io::ErrorKind::Other,
-            "Unsupported operating system",
-        ));
-    }
+        return Err(anyhow::anyhow!("Unsupported operating system"));
+    };
+
+    result?.wait()?;
+
+    tui.resume()?;
 
     Ok(())
 }
 
 pub fn new_folder(dir_name: &Path) -> io::Result<()> {
-    Command::new("mkdir")
-        .arg("-i")
-        .arg(dir_name).spawn()?;
+    Command::new("mkdir").arg("-i").arg(dir_name).spawn()?;
     Ok(())
 }
 
